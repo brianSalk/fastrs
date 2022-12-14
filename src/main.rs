@@ -13,26 +13,24 @@ fn main() {
     while i < len  {
         let next_arg = env::args().nth(i).unwrap();
         if next_arg == String::from("--min") {
-            if i < env::args().len() {
-                let min_length_str = match env::args().nth(i+1) {
-                    Some(num) => num,
-                    None => {
-                        eprintln!("missing mandatory argument for --min");
-                        std::process::exit(1);
-                    }
-                };
-                min_length = match min_length_str.parse::<u32>() {
-                   Ok(num) => num,
-                   Err(e) => {
-                        eprintln!("{0}",e);
-                        std::process::exit(1);
-                   }
-                };
-
-            } else {
-                eprintln!("missing required argument to --min");
+            if i == len-1 {
+                eprintln!("missing mandatory argument to --min");
                 std::process::exit(1);
             }
+            let min_length_str = match env::args().nth(i+1) {
+                Some(num) => num,
+                None => {
+                    eprintln!("missing mandatory argument for --min");
+                    std::process::exit(1);
+                }
+            };
+            min_length = match min_length_str.parse::<u32>() {
+               Ok(num) => num,
+               Err(e) => {
+                    eprintln!("{0}",e);
+                    std::process::exit(1);
+               }
+            };
             i += 1;
 
         }
