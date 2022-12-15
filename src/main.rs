@@ -106,7 +106,9 @@ fn main() {
         eprintln!("argument to --min must be <= argument to --max");
         std::process::exit(1);
     }
-    let seqs = create_dna_seqs(flags.n,flags.min,flags.max);
+
+    let seqs = if flags.is_dna {create_dna_seqs(flags.n,flags.min,flags.max)} else {create_prot_seqs(flags.n, flags.min, flags.max)};
+
     for (i,seq) in seqs.iter().enumerate() {
         println!("> {0}{1}",flags.title,i+1);
         println!("{0}", seq);
@@ -155,18 +157,11 @@ fn add_rand_prot(bio_string: &mut String) {
     };
 }
 
-fn create_dna_seq(length:u32) -> String {
-    let mut bio_string = String::new();
-    for _ in 0..length {
-        add_rand_nucl(&mut bio_string);
-    }
-    bio_string
-}
 
-fn create_prot_seq(length:u32) -> String {
+fn create_seq(length:u32, add_rand: &mut dyn FnMut(&mut String)) -> String {
     let mut bio_string = String::new();
     for _ in 0..length {
-        add_rand_nucl(&mut bio_string);
+        add_rand(&mut bio_string);
     }
     bio_string
 }
@@ -175,7 +170,7 @@ fn create_dna_seqs(n:u32, min:u32,max:u32) -> Vec<String> {
     let mut seqs = Vec::new();
     for _ in 0..n {
         let length = rand::thread_rng().gen_range(min..max+1);
-        seqs.push(create_dna_seq(length));
+        seqs.push(create_seq(length,& mut add_rand_nucl));
     };
     seqs
 }
@@ -184,11 +179,12 @@ fn create_prot_seqs(n:u32, min:u32,max:u32) -> Vec<String> {
     let mut seqs = Vec::new();
     for _ in 0..n {
         let length = rand::thread_rng().gen_range(min..max+1);
-        seqs.push(create_dna_seq(length));
+        seqs.push(create_seq(length,& mut add_rand_prot));
     };
     seqs
 }
 
+// group all flags into a struct for conveniance and easier maintainability 
 struct Flags {
     max: u32,
     min: u32,
