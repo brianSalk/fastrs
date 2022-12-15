@@ -7,6 +7,18 @@ fn main() {
     // process command line arguments
     let mut i:usize = 1;
     let len = env::args().len();
+    // if -h or --help show up in the arguments, display help and exit successfully
+    {
+        let mut prev_arg = String::new();
+        for arg in env::args() {
+            if (prev_arg != "--title" && prev_arg != "-t") && arg == "-h" || arg == "--help" {
+                println!("--min");
+                println!("--max");
+                std::process::exit(0);
+            }
+            prev_arg = arg;
+        }
+    }
     while i < len  {
         let next_arg = env::args().nth(i).unwrap();
         if next_arg == String::from("--min") {
