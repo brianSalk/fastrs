@@ -107,15 +107,6 @@ fn main() {
                 }
             };
         }
-        if next_arg == "--custom_charset" {
-            flags.custom_charset = match std::env::args().nth(i+1) {
-                Some(s) => s,
-                None => {
-                    println!("missing mandatory argument to --custom_charset");
-                    std::process::exit(1);
-                }
-            }
-        }
 
         i += 1;
     } // end while loop to read command line args
@@ -124,16 +115,11 @@ fn main() {
         eprintln!("argument to --min must be <= argument to --max");
         std::process::exit(1);
     }
-    let seqs;
-    if flags.custom_charset == "" {
-        seqs = match flags.bio_type {
-            BioType::Dna => create_seqs(flags.n, flags.min, flags.max, vec!['A','C','G','T']),
-            BioType::Rna => create_seqs(flags.n, flags.min, flags.max, vec!['A','C','G','U']),
-            BioType::Prot => create_seqs(flags.n, flags.min, flags.max, ('A'..'W').into_iter().collect())
-        };
-    } else {
-        seqs = create_seqs(flags.n, flags.min, flags.max, flags.custom_charset.chars().collect() );
-    }
+    let seqs = match flags.bio_type {
+        BioType::Dna => create_seqs(flags.n, flags.min, flags.max, vec!['A','C','G','T']),
+        BioType::Rna => create_seqs(flags.n, flags.min, flags.max, vec!['A','C','G','U']),
+        BioType::Prot => create_seqs(flags.n, flags.min, flags.max, ('A'..'Z').into_iter().collect())
+    };
 
     for (i,seq) in seqs.iter().enumerate() {
         println!("> {0}{1}",flags.seq,i+1);
