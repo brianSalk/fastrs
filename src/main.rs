@@ -129,7 +129,12 @@ fn main() {
         seqs = match flags.bio_type {
             BioType::Dna => create_seqs(flags.n, flags.min, flags.max, vec!['A','C','G','T']),
             BioType::Rna => create_seqs(flags.n, flags.min, flags.max, vec!['A','C','G','U']),
-            BioType::Prot => create_seqs(flags.n, flags.min, flags.max, ('A'..'W').into_iter().collect())
+            BioType::Prot => {
+                let mut prot_vec: Vec<char> = ('A'..'W').into_iter().collect();
+                prot_vec.push('X');
+                prot_vec.push('Z');
+                create_seqs(flags.n, flags.min, flags.max, prot_vec)
+            }
         };
     } else {
         seqs = create_seqs(flags.n, flags.min, flags.max, flags.custom_charset.chars().collect() );
