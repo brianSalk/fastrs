@@ -114,7 +114,8 @@ fn main() {
                     println!("missing mandatory argument to --custom_charset");
                     std::process::exit(1);
                 }
-            }
+            };
+            i+=1;
         }
 
         i += 1;
