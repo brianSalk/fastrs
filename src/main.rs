@@ -11,9 +11,9 @@ fn main() {
     {
         let mut prev_arg = String::new();
         for arg in env::args() {
+            // allow user to user --help as argument for --title.
             if (prev_arg != "--title" && prev_arg != "-t") && arg == "-h" || arg == "--help" {
-                println!("--min");
-                println!("--max");
+                Flags::help();
                 std::process::exit(0);
             }
             prev_arg = arg;
@@ -76,7 +76,7 @@ fn main() {
             };    
             i += 1;
         }
-
+        // FIX ME: change this to seq instead of title.
         if next_arg == "-t" || next_arg == "--title" {
             flags.seq = match env::args().nth(i+1) {
                 Some(title) => title,
@@ -117,6 +117,23 @@ fn main() {
             };
             i+=1;
         }
+        if next_arg == "--length" || next_arg == "-l" {
+            flags.length = match std::env::args().nth(i+1) {
+                Some(n) => {
+                    match n.parse::<u32>() {
+                        Ok(n) => n, 
+                        Err(e) => {
+                            println!("{0}",e);
+                            std::process::exit(1);
+                        }
+                    }
+                }
+                None => {
+                    println!("missing mandatory argument to --length");
+                    std::process::exit(1);
+                }
+            }
+        }
 
         i += 1;
     } // end while loop to read command line args
@@ -124,6 +141,10 @@ fn main() {
     if flags.min > flags.max {
         eprintln!("argument to --min must be <= argument to --max");
         std::process::exit(1);
+    }
+    if flags.length > 0 {
+        flags.min = flags.length;
+        flags.max = flags.length;
     }
     let seqs;
     if flags.custom_charset == "" {
@@ -190,6 +211,19 @@ impl Flags {
             bio_type: BioType::Dna,
             custom_charset: String::new()
         }
+    }
+    fn help() {
+        println!("create_fasta is a command line tool that creates randomly generated fasta files");
+        println!("==========================================================================\n");
+        println!("--length, -l: specify length of each sequence in fasta. Overrides --min and --max");
+        println!("--min: minimum length of a randomly generated sequence.(ignored if -l or --length is also used)");
+        println!("--max: maximum length of a randomly generated sequence.(ignored if -l or --length is also used)");
+        println!("--num_seqs, -n: specify number of sequences to generate.");
+        println!("--out, -o: outfile to print fasta file to.  (print to stdout if nothing is specified)");
+        println!("--seq: base name of the sequence, if multiple sequences are generated, ascending integers starting at 1 will be appended to the base name");
+        println!("--type: specify the type of fasta file to create, (valid options are 'dna', 'rna', and 'prot')");
+        println!("--cust_charset: specify your own character set to use.  Overrides value of --type");
+
     }
 }
 enum BioType {
